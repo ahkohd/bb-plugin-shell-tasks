@@ -12,6 +12,10 @@ const app = await loadPluginApp(() => import("../app.tsx"));
 const task = (id: number, status = "running") => ({ task_id: id, status, pid: 123, command: "true", started_at: new Date().toISOString(), ended_at: null, exit_code: null, signal: null, log_path: "/tmp/log" });
 const detail = (id: number, output: string, status = "running") => ({ task: task(id, status), tail: { output, earlier: false, total_bytes: output.length, next_cursor: output.length } });
 
+test("panel uses the Apple Reminder icon", () => {
+  assert.equal(app.threadPanelActions[0].icon, "shell-tasks/apple-reminder");
+});
+
 test("cards refresh running output without events and reconcile missed completion and clear on reconnect", async () => {
   let next: any = detail(1, "first");
   let calls = 0;

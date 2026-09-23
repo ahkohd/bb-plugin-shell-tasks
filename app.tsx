@@ -399,7 +399,7 @@ export default definePluginApp((app) => {
   app.slots.threadPanelAction({
     id: "shell-tasks",
     title: "Shell tasks",
-    icon: "ListTodo",
+    icon: "shell-tasks/apple-reminder",
     component: TasksPanel,
     layout: "flush",
   });

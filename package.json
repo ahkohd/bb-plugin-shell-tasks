@@ -1,6 +1,6 @@
 {
   "name": "bb-plugin-shell-tasks",
-  "version": "0.1.22",
+  "version": "0.1.23",
   "description": "Lets your BB agents run long-lived shell commands without blocking a turn.",
   "license": "MIT",
   "repository": {
@@ -19,7 +19,10 @@
     "name": "Shell tasks",
     "description": "Lets your BB agents run long-lived shell commands without blocking a turn.",
     "branding": {
-      "icon": "ListTodo"
+      "icon": "./assets/apple-reminder.svg",
+      "experimental_icons": {
+        "apple-reminder": "./assets/apple-reminder.svg"
+      }
     },
     "server": "./server.ts",
     "host": "./host.ts",
