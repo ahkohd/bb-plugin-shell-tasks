@@ -349,6 +349,17 @@ test("read and tail do not acknowledge a pre-completion snapshot as final output
   } finally { await h.dispose(); }
 });
 
+test("task tool is available to Pi without a setting", async () => {
+  const host = createFakePluginHost({ pluginId: "shell-tasks" });
+  try {
+    await plugin(host.bb);
+    const config = await host.harness.behavior.resolveAgentConfiguration(
+      makePluginAgentConfigurationContext({ provider: { id: "pi" } }),
+    );
+    assert.deepEqual(config.tools.map((tool) => tool.name), ["task"]);
+  } finally { await host.harness.lifecycle.dispose(); }
+});
+
 test("preference setting nudges agents away from provider background tasks", async () => {
   const host = createFakePluginHost({
     pluginId: "shell-tasks",

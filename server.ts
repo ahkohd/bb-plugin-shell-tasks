@@ -110,13 +110,6 @@ function requiredId(input: TaskToolInput): number {
 
 export default async function plugin(bb: BbPluginApi) {
   const settings = bb.settings.define({
-    enableForPi: {
-      type: "boolean",
-      label: "Enable the task tool for Pi",
-      description:
-        "Leave off while Pi's local task extension is installed to avoid duplicate tool names.",
-      default: false,
-    },
     preferOverNativeBackgroundTasks: {
       type: "boolean",
       label: "Prefer Shell tasks over provider background tasks",
@@ -125,7 +118,7 @@ export default async function plugin(bb: BbPluginApi) {
       default: false,
     },
   });
-  const { enableForPi, preferOverNativeBackgroundTasks } = await settings.get();
+  const { preferOverNativeBackgroundTasks } = await settings.get();
 
   const db = bb.storage.database();
   bb.storage.migrate(db, [
@@ -922,10 +915,8 @@ export default async function plugin(bb: BbPluginApi) {
     },
   });
 
-  const isPiProvider = (providerId: string) =>
-    /(^|[-_])pi($|[-_])/i.test(providerId);
-  bb.agents.configure((context) => ({
-    tools: enableForPi || !isPiProvider(context.provider.id) ? ["task"] : [],
+  bb.agents.configure(() => ({
+    tools: ["task"],
     skills: [],
     instructions: preferOverNativeBackgroundTasks
       ? "Prefer the BB task tool over the provider's native background-task runner for non-interactive long-running commands. Use the provider runner only when task is unavailable or the command requires an interactive terminal."
@@ -1010,7 +1001,5 @@ export default async function plugin(bb: BbPluginApi) {
     },
   });
 
-  bb.log.info(
-    `loaded; task tool enabled for non-Pi providers${enableForPi ? " and Pi" : ""}`,
-  );
+  bb.log.info("loaded; task tool enabled");
 }
