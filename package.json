@@ -1,7 +1,7 @@
 {
   "name": "bb-plugin-shell-tasks",
-  "version": "0.1.19",
-  "description": "Run and manage asynchronous shell tasks from BB agent threads.",
+  "version": "0.1.20",
+  "description": "Lets your BB agents run long-lived shell commands without blocking a turn.",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -17,7 +17,7 @@
   },
   "bb": {
     "name": "Shell tasks",
-    "description": "Run and manage asynchronous shell tasks from BB agent threads.",
+    "description": "Lets your BB agents run long-lived shell commands without blocking a turn.",
     "branding": {
       "icon": "ListTodo"
     },

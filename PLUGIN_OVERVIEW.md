@@ -1,4 +1,4 @@
-Run long-lived tests, builds, servers and watchers without blocking an agent turn.
+Lets your BB agents run long-lived tests, builds, servers and watchers without blocking a turn.
 
 ## Native task management
 

@@ -1,6 +1,6 @@
 # Shell tasks for BB
 
-Run long-lived commands without blocking an agent turn.
+Lets your BB agents run long-lived shell commands without blocking a turn.
 
 ![Shell tasks panel showing completed and failed background commands](assets/shell-tasks-demo.png)
 
@@ -11,7 +11,7 @@ Shell tasks adds a provider-independent `task` tool to [BB](https://github.com/g
 Install the latest compatible `0.1.x` release:
 
 ```sh
-bb plugin install git:https://github.com/ahkohd/bb-plugin-shell-tasks.git@^0.1.19
+bb plugin install git:https://github.com/ahkohd/bb-plugin-shell-tasks.git@^0.1.0
 ```
 
 The plugin works with supported BB providers. To enable it for Pi, remove Pi's former [`task.ts` extension](https://github.com/ahkohd/dotfiles/blob/84c682fe4f7902c441f9212c3f38d2a2177ecddb/pi/.pi/agent/extensions/task.ts) first, then run:
