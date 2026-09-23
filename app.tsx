@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
   definePluginApp,
   useBbContext,
@@ -159,12 +159,20 @@ function statusText(task: TaskSummary): string {
 }
 
 function TaskOutput({ tail }: { tail: TailOutputChunk }) {
+  const outputRef = useRef<HTMLPreElement>(null);
+  const positioned = useRef(false);
+  useLayoutEffect(() => {
+    const output = outputRef.current;
+    if (!output || positioned.current) return;
+    output.scrollTop = output.scrollHeight;
+    positioned.current = true;
+  }, [tail.output]);
   if (!tail.output) {
     return <p className="text-xs text-muted-foreground">No output.</p>;
   }
   return (
     <>
-      <pre className="max-h-72 overflow-auto whitespace-pre-wrap break-words rounded-md border border-border bg-muted/30 p-3 font-mono text-xs leading-5">
+      <pre ref={outputRef} className="max-h-72 overflow-auto whitespace-pre-wrap break-words rounded-md border border-border bg-muted/30 p-3 font-mono text-xs leading-5">
         {tail.output}
       </pre>
       {tail.earlier ? (

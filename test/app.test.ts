@@ -16,6 +16,25 @@ test("panel uses the Apple Reminder icon", () => {
   assert.equal(app.threadPanelActions[0].icon, "shell-tasks/apple-reminder");
 });
 
+test("expanded output opens at the latest line", async () => {
+  const previous = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "scrollHeight");
+  Object.defineProperty(HTMLElement.prototype, "scrollHeight", { configurable: true, get: () => 480 });
+  const slot = renderSlot(app.threadPanelActions[0], { threadId: "thread-test", params: { selectedId: 1 } } as any, {
+    rpc: {
+      tasks_list: async () => ({ tasks: [task(1, "success")] }),
+      task_get: async () => detail(1, "first line\nlatest line", "success"),
+    },
+  });
+  try {
+    const output = await slot.findByText(/latest line/, { selector: "pre" });
+    assert.equal(output.scrollTop, 480);
+  } finally {
+    slot.lifecycle.unmount();
+    if (previous) Object.defineProperty(HTMLElement.prototype, "scrollHeight", previous);
+    else delete (HTMLElement.prototype as any).scrollHeight;
+  }
+});
+
 test("cards refresh running output without events and reconcile missed completion and clear on reconnect", async () => {
   let next: any = detail(1, "first");
   let calls = 0;
