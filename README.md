@@ -21,6 +21,15 @@ bb plugin config shell-tasks set enableForPi true
 bb plugin reload shell-tasks
 ```
 
+To nudge agents to choose Shell tasks over a provider's built-in background-task runner:
+
+```sh
+bb plugin config shell-tasks set preferOverNativeBackgroundTasks true
+bb plugin reload shell-tasks
+```
+
+The preference applies when the next provider session is assembled. Agents can still use the provider runner when `task` is unavailable or a command needs an interactive terminal.
+
 ## What you get
 
 The plugin registers these `task` actions:

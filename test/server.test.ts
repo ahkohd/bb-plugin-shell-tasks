@@ -5,7 +5,7 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { TaskManager } from "../host.ts";
-import { createFakePluginHost, makeThreadResponse } from "@get-bb/plugin-sdk/testing";
+import { createFakePluginHost, makePluginAgentConfigurationContext, makeThreadResponse } from "@get-bb/plugin-sdk/testing";
 import plugin from "../server.ts";
 
 const threadId = "thread-test";
@@ -347,6 +347,20 @@ test("read and tail do not acknowledge a pre-completion snapshot as final output
       h.setOutputGate();
     }
   } finally { await h.dispose(); }
+});
+
+test("preference setting nudges agents away from provider background tasks", async () => {
+  const host = createFakePluginHost({
+    pluginId: "shell-tasks",
+    settings: { preferOverNativeBackgroundTasks: true },
+  });
+  try {
+    await plugin(host.bb);
+    const config = await host.harness.behavior.resolveAgentConfiguration(
+      makePluginAgentConfigurationContext({ provider: { id: "claude-code" } }),
+    );
+    assert.match(config.instructions ?? "", /Prefer the BB task tool over the provider's native background-task runner/);
+  } finally { await host.harness.lifecycle.dispose(); }
 });
 
 test("offline archive and deletion retain ownership and retry stops and log cleanup", async (t) => {

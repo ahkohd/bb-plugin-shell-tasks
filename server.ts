@@ -117,8 +117,15 @@ export default async function plugin(bb: BbPluginApi) {
         "Leave off while Pi's local task extension is installed to avoid duplicate tool names.",
       default: false,
     },
+    preferOverNativeBackgroundTasks: {
+      type: "boolean",
+      label: "Prefer Shell tasks over provider background tasks",
+      description:
+        "Nudge agents to use Shell tasks instead of the provider's built-in background-task runner.",
+      default: false,
+    },
   });
-  const { enableForPi } = await settings.get();
+  const { enableForPi, preferOverNativeBackgroundTasks } = await settings.get();
 
   const db = bb.storage.database();
   bb.storage.migrate(db, [
@@ -920,6 +927,9 @@ export default async function plugin(bb: BbPluginApi) {
   bb.agents.configure((context) => ({
     tools: enableForPi || !isPiProvider(context.provider.id) ? ["task"] : [],
     skills: [],
+    instructions: preferOverNativeBackgroundTasks
+      ? "Prefer the BB task tool over the provider's native background-task runner for non-interactive long-running commands. Use the provider runner only when task is unavailable or the command requires an interactive terminal."
+      : undefined,
   }));
 
   async function reconcileTask(task: TaskRow): Promise<void> {
