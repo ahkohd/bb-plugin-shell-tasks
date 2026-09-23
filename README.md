@@ -14,7 +14,7 @@ Install the latest compatible `0.1.x` release:
 bb plugin install git:https://github.com/ahkohd/bb-plugin-shell-tasks.git@^0.1.19
 ```
 
-The plugin works with supported BB providers. To enable it for Pi, remove Pi's local `task.ts` extension first, then run:
+The plugin works with supported BB providers. To enable it for Pi, remove Pi's former [`task.ts` extension](https://github.com/ahkohd/dotfiles/blob/84c682fe4f7902c441f9212c3f38d2a2177ecddb/pi/.pi/agent/extensions/task.ts) first, then run:
 
 ```sh
 bb plugin config shell-tasks set enableForPi true

@@ -8,4 +8,4 @@ Tasks appear in BB's own interface: native tool rows, a per-thread Tasks panel, 
 
 ## Pi migration
 
-The core actions and stop behaviour come from Pi's former task extension. BB adds a configurable tail line limit, a smaller 50-line default and clearer output metadata. The old local `task.ts` must be removed before enabling this tool for Pi because both register the same tool name.
+The core actions and stop behaviour come from [Pi's former task extension](https://github.com/ahkohd/dotfiles/blob/84c682fe4f7902c441f9212c3f38d2a2177ecddb/pi/.pi/agent/extensions/task.ts). BB adds a configurable tail line limit, a smaller 50-line default and clearer output metadata. The old local [`task.ts`](https://github.com/ahkohd/dotfiles/blob/84c682fe4f7902c441f9212c3f38d2a2177ecddb/pi/.pi/agent/extensions/task.ts) must be removed before enabling this tool for Pi because both register the same tool name.
