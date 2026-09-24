@@ -16,6 +16,27 @@ test("panel uses the Apple Reminder icon", () => {
   assert.equal(app.threadPanelActions[0].icon, "shell-tasks/apple-reminder");
 });
 
+test("task duration ticks while running and stays fixed when completed", async () => {
+  const endedAt = Date.now();
+  let current: any = {
+    ...task(1),
+    title: "Timed task",
+    started_at: new Date(endedAt - 487_000).toISOString(),
+  };
+  const slot = renderSlot(app.threadPanelActions[0], { threadId: "thread-test" } as any, {
+    rpc: { tasks_list: () => ({ tasks: [current] }) },
+  });
+  try {
+    await slot.findByText("8m 7s");
+    await slot.findByText("8m 8s", {}, { timeout: 2_000 });
+    current = { ...current, status: "success", ended_at: new Date(endedAt).toISOString() };
+    await slot.behavior.emitRealtime("tasks-changed", { threadId: "thread-test", taskId: 1, status: "success", notify: false });
+    await slot.findByText("8m 7s");
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 1_100)); });
+    assert.ok(slot.getByText("8m 7s"));
+  } finally { slot.lifecycle.unmount(); }
+});
+
 test("expanded output opens at the latest line", async () => {
   const previous = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "scrollHeight");
   Object.defineProperty(HTMLElement.prototype, "scrollHeight", { configurable: true, get: () => 480 });

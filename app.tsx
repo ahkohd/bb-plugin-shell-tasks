@@ -142,6 +142,19 @@ function taskName(task: Pick<TaskDetailSummary, "task_id" | "title">): string {
   return task.title || `Task #${task.task_id}`;
 }
 
+function taskDuration(task: TaskSummary, now: number): string | null {
+  const started = Date.parse(task.started_at);
+  const ended = task.ended_at === null ? now : Date.parse(task.ended_at);
+  if (!Number.isFinite(started) || !Number.isFinite(ended) || ended < started) return null;
+  const total = Math.floor((ended - started) / 1_000);
+  const seconds = total % 60;
+  const minutes = Math.floor(total / 60) % 60;
+  const hours = Math.floor(total / 3_600);
+  if (hours > 0) return `${hours}h ${minutes}m ${seconds}s`;
+  if (minutes > 0) return `${minutes}m ${seconds}s`;
+  return `${seconds}s`;
+}
+
 function statusText(task: TaskSummary): string {
   if (task.status === "error" && task.exit_code !== null) {
     return `Failed (exit ${task.exit_code})`;
@@ -195,7 +208,15 @@ function TasksPanel({ threadId, params }: PluginThreadPanelProps) {
   );
   const { data: detail, error: detailError } = useTaskDetail(threadId, selectedId, tasks);
   const [pending, setPending] = useState<number | null>(null);
+  const [now, setNow] = useState(Date.now);
   const ordered = useMemo(() => [...(tasks ?? [])].reverse(), [tasks]);
+  const hasRunningTask = tasks?.some((task) => task.status === "running") ?? false;
+  useEffect(() => {
+    if (!hasRunningTask) return;
+    setNow(Date.now());
+    const timer = setInterval(() => setNow(Date.now()), 1_000);
+    return () => clearInterval(timer);
+  }, [hasRunningTask]);
 
   const stop = async (id: number) => {
     setPending(id);
@@ -242,6 +263,7 @@ function TasksPanel({ threadId, params }: PluginThreadPanelProps) {
           <ul className="space-y-2" aria-live="polite">
             {ordered.map((task) => {
               const selected = selectedId === task.task_id;
+              const duration = taskDuration(task, now);
               return (
                 <li
                   key={task.task_id}
@@ -259,8 +281,15 @@ function TasksPanel({ threadId, params }: PluginThreadPanelProps) {
                     >
                       <span className="mt-0.5">{statusIcon(task.status)}</span>
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-medium">
-                          {taskName(task)}
+                        <span className="flex min-w-0 items-baseline gap-2">
+                          <span className="truncate text-sm font-medium">
+                            {taskName(task)}
+                          </span>
+                          {duration ? (
+                            <span className="shrink-0 text-xs text-subtle-foreground">
+                              {duration}
+                            </span>
+                          ) : null}
                         </span>
                         <span className="block truncate font-mono text-xs text-subtle-foreground">
                           {task.command}
