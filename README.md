@@ -23,7 +23,19 @@ bb plugin config shell-tasks set preferOverNativeBackgroundTasks true
 bb plugin reload shell-tasks
 ```
 
-The preference applies when the next provider session is assembled. Agents can still use the provider runner when `task` is unavailable or a command needs an interactive terminal.
+The preference applies when the next provider session is assembled. It adds agent instructions; it does not disable provider-native tools. Agents can still use the provider runner when `task` is unavailable or a command needs an interactive terminal.
+
+### Provider notes
+
+Claude Code users can disable its native background-task facility through BB's machine environment:
+
+```sh
+printf '1\n' | bb machine env set CLAUDE_CODE_DISABLE_BACKGROUND_TASKS
+```
+
+This setting applies across connected machines and BB projects. Add `--project <project-id>` to scope it to one project. Start a new Claude thread afterwards. The variable disables all Claude Code background tasks, including background Bash commands and subagents; Shell tasks does not set it automatically.
+
+Codex has no documented equivalent. Its `exec_command` tool can yield a long-running command into a managed terminal session. `background_terminal_max_timeout` changes polling time but does not disable that behaviour, so the Shell tasks preference remains guidance for Codex.
 
 ## What you get
 
