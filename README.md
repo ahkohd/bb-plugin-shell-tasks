@@ -23,17 +23,15 @@ bb plugin config shell-tasks set preferOverNativeBackgroundTasks true
 bb plugin reload shell-tasks
 ```
 
-The preference applies when the next provider session is assembled. It adds agent instructions; it does not disable provider-native tools. Agents can still use the provider runner when `task` is unavailable or a command needs an interactive terminal.
+The preference adds agent instructions; it does not disable provider tools.
 
-### Provider notes
-
-Claude Code users can disable its native background-task facility through BB's machine environment:
+To disable Claude Code's background Bash commands and subagents:
 
 ```sh
 printf '1\n' | bb machine env set CLAUDE_CODE_DISABLE_BACKGROUND_TASKS
 ```
 
-This setting applies across connected machines and BB projects. Add `--project <project-id>` to scope it to one project. Start a new Claude thread afterwards. The variable disables all Claude Code background tasks, including background Bash commands and subagents; Shell tasks does not set it automatically.
+Start a new Claude thread afterwards. Add `--project <project-id>` to scope the setting. Shell tasks does not set it automatically.
 
 ## What you get
 
