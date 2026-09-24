@@ -35,8 +35,6 @@ printf '1\n' | bb machine env set CLAUDE_CODE_DISABLE_BACKGROUND_TASKS
 
 This setting applies across connected machines and BB projects. Add `--project <project-id>` to scope it to one project. Start a new Claude thread afterwards. The variable disables all Claude Code background tasks, including background Bash commands and subagents; Shell tasks does not set it automatically.
 
-Codex has no documented equivalent. Its `exec_command` tool can yield a long-running command into a managed terminal session. `background_terminal_max_timeout` changes polling time but does not disable that behaviour, so the Shell tasks preference remains guidance for Codex.
-
 ## What you get
 
 The plugin registers these `task` actions:
