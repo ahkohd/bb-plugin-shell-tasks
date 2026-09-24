@@ -146,7 +146,9 @@ function taskDuration(task: TaskSummary, now: number): string | null {
   const started = Date.parse(task.started_at);
   const ended = task.ended_at === null ? now : Date.parse(task.ended_at);
   if (!Number.isFinite(started) || !Number.isFinite(ended) || ended < started) return null;
-  const total = Math.floor((ended - started) / 1_000);
+  const elapsed = ended - started;
+  if (elapsed < 1_000) return `${Math.max(1, elapsed)}ms`;
+  const total = Math.floor(elapsed / 1_000);
   const seconds = total % 60;
   const minutes = Math.floor(total / 60) % 60;
   const hours = Math.floor(total / 3_600);

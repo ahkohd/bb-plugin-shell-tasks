@@ -37,6 +37,18 @@ test("task duration ticks while running and stays fixed when completed", async (
   } finally { slot.lifecycle.unmount(); }
 });
 
+test("sub-second task durations use milliseconds without showing zero", async () => {
+  const instant = new Date().toISOString();
+  const slot = renderSlot(app.threadPanelActions[0], { threadId: "thread-test" } as any, {
+    rpc: { tasks_list: () => ({ tasks: [{ ...task(1, "success"), started_at: instant, ended_at: instant }] }) },
+  });
+  try {
+    await slot.findByText("1ms");
+    assert.equal(slot.queryByText("0ms"), null);
+    assert.equal(slot.queryByText("0s"), null);
+  } finally { slot.lifecycle.unmount(); }
+});
+
 test("expanded output opens at the latest line", async () => {
   const previous = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "scrollHeight");
   Object.defineProperty(HTMLElement.prototype, "scrollHeight", { configurable: true, get: () => 480 });
