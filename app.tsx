@@ -157,6 +157,17 @@ function taskDuration(task: TaskSummary, now: number): string | null {
   return `${seconds}s`;
 }
 
+function useTaskClock(running: boolean): number {
+  const [now, setNow] = useState(Date.now);
+  useEffect(() => {
+    if (!running) return;
+    setNow(Date.now());
+    const timer = setInterval(() => setNow(Date.now()), 1_000);
+    return () => clearInterval(timer);
+  }, [running]);
+  return now;
+}
+
 function statusText(task: TaskSummary): string {
   if (task.status === "error" && task.exit_code !== null) {
     return `Failed (exit ${task.exit_code})`;
@@ -210,15 +221,9 @@ function TasksPanel({ threadId, params }: PluginThreadPanelProps) {
   );
   const { data: detail, error: detailError } = useTaskDetail(threadId, selectedId, tasks);
   const [pending, setPending] = useState<number | null>(null);
-  const [now, setNow] = useState(Date.now);
   const ordered = useMemo(() => [...(tasks ?? [])].reverse(), [tasks]);
   const hasRunningTask = tasks?.some((task) => task.status === "running") ?? false;
-  useEffect(() => {
-    if (!hasRunningTask) return;
-    setNow(Date.now());
-    const timer = setInterval(() => setNow(Date.now()), 1_000);
-    return () => clearInterval(timer);
-  }, [hasRunningTask]);
+  const now = useTaskClock(hasRunningTask);
 
   const stop = async (id: number) => {
     setPending(id);
@@ -357,6 +362,7 @@ function TaskDirective({ attributes, message }: PluginMessageDirectiveProps) {
   const id = Number(attributes.id);
   const validId = Number.isInteger(id) && id > 0;
   const { data, error } = useTaskDetail(message.threadId, validId ? id : null);
+  const now = useTaskClock(data?.task.status === "running");
 
   if (!validId) {
     return <p className="text-sm text-destructive">Invalid task id.</p>;
@@ -382,6 +388,7 @@ function TaskDirective({ attributes, message }: PluginMessageDirectiveProps) {
 
   const outputLines = data.tail.output.trimEnd().split("\n");
   const compactOutput = outputLines.slice(-12).join("\n");
+  const duration = taskDuration(data.task, now);
   return (
     <div className="my-2 overflow-hidden rounded-lg border border-border bg-card">
       <button
@@ -396,10 +403,17 @@ function TaskDirective({ attributes, message }: PluginMessageDirectiveProps) {
         }
       >
         {statusIcon(data.task.status)}
-        <span className="min-w-0 flex-1 truncate text-sm font-medium">
-          {taskName(data.task)}
+        <span className="flex min-w-0 flex-1 items-baseline gap-2">
+          <span className="truncate text-sm font-medium">
+            {taskName(data.task)}
+          </span>
+          {duration ? (
+            <span className="shrink-0 text-xs text-subtle-foreground">
+              {duration}
+            </span>
+          ) : null}
         </span>
-        <span className={cn("text-xs", statusClass(data.task.status))}>
+        <span className={cn("shrink-0 text-xs", statusClass(data.task.status))}>
           {statusText(data.task)}
         </span>
       </button>

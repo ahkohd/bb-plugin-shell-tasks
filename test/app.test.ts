@@ -93,6 +93,21 @@ test("cards refresh running output without events and reconcile missed completio
   } finally { slot.lifecycle.unmount(); }
 });
 
+test("message cards show the task duration", async () => {
+  const endedAt = Date.now();
+  const value: any = detail(1, "done", "success");
+  value.task.title = "Timed card";
+  value.task.started_at = new Date(endedAt - 487_000).toISOString();
+  value.task.ended_at = new Date(endedAt).toISOString();
+  const slot = renderSlot(app.messageDirectives[0], { attributes: { id: "1" }, message: { threadId: "thread-test" } } as any, {
+    rpc: { task_get: async () => value },
+  });
+  try {
+    await slot.findByText("8m 7s");
+    assert.ok(slot.getByText("Completed"));
+  } finally { slot.lifecycle.unmount(); }
+});
+
 test("late detail responses cannot overwrite the currently selected task", async () => {
   const pending: Array<(value: any) => void> = [];
   const slot = renderSlot(app.threadPanelActions[0], { threadId: "thread-test", params: { selectedId: 1 } } as any, {
