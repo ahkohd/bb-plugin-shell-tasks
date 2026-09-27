@@ -54,7 +54,8 @@ test("Clear finished confirms, clears finished tasks and keeps running tasks", a
     fireEvent.keyDown(actions, { key: "Enter" });
     const clearFinished = await slot.findByRole("menuitem", { name: "Clear finished" });
     assert.ok(clearFinished.classList.contains("text-xs"));
-    assert.ok(clearFinished.querySelector("[data-icon-root]")?.classList.contains("size-4"));
+    assert.ok(clearFinished.classList.contains("hover:bg-state-hover"));
+    assert.ok(clearFinished.querySelector("[data-icon-root]")?.classList.contains("size-[16px]"));
     fireEvent.click(clearFinished);
     await slot.findByRole("heading", { name: "Clear 2 finished tasks?" });
     assert.ok(slot.getByText("This deletes their output logs. Running tasks will stay."));
