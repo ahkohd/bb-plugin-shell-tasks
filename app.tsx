@@ -11,6 +11,7 @@ import type {
   PluginMessageDirectiveProps,
   PluginThreadPanelProps,
 } from "@get-bb/plugin-sdk/app";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { toast } from "sonner";
 import type {
   TailOutputChunk,
@@ -28,7 +29,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Icon } from "@/components/ui/icon";
 import { cn } from "@/lib/utils";
@@ -270,21 +270,39 @@ function TasksPanel({ threadId, params }: PluginThreadPanelProps) {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="flex shrink-0 justify-end border-b border-border px-3 py-2">
+      <div className="flex shrink-0 justify-end px-3 py-2">
+        <DropdownMenu.Root>
+          <DropdownMenu.Trigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-8 text-muted-foreground"
+              aria-label="Task actions"
+            >
+              <Icon name="MoreHorizontal" className="rotate-90" />
+            </Button>
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Portal>
+            <DropdownMenu.Content
+              align="end"
+              sideOffset={4}
+              className="z-50 min-w-40 rounded-md border border-border bg-background p-1 text-foreground shadow-sm"
+            >
+              <DropdownMenu.Item
+                disabled={finished.length === 0 || clearingFinished}
+                onSelect={() => setClearDialogOpen(true)}
+                className="flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none data-[highlighted]:bg-state-hover data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+              >
+                <Icon name="Trash2" />
+                Clear finished
+              </DropdownMenu.Item>
+            </DropdownMenu.Content>
+          </DropdownMenu.Portal>
+        </DropdownMenu.Root>
         <Dialog
           open={clearDialogOpen}
           onOpenChange={(open) => { if (!clearingFinished) setClearDialogOpen(open); }}
         >
-          <DialogTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              disabled={finished.length === 0 || clearingFinished}
-            >
-              <Icon name="Trash2" />
-              Clear finished
-            </Button>
-          </DialogTrigger>
           <DialogContent className="max-w-sm">
             <DialogHeader>
               <DialogTitle>
