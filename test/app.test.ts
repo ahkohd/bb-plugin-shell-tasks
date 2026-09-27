@@ -52,7 +52,10 @@ test("Clear finished confirms, clears finished tasks and keeps running tasks", a
     const actions = slot.getByRole("button", { name: "Task actions" });
     assert.equal(actions.parentElement?.classList.contains("border-b"), false);
     fireEvent.keyDown(actions, { key: "Enter" });
-    fireEvent.click(await slot.findByRole("menuitem", { name: "Clear finished" }));
+    const clearFinished = await slot.findByRole("menuitem", { name: "Clear finished" });
+    assert.ok(clearFinished.classList.contains("text-xs"));
+    assert.ok(clearFinished.querySelector("[data-icon-root]")?.classList.contains("size-4"));
+    fireEvent.click(clearFinished);
     await slot.findByRole("heading", { name: "Clear 2 finished tasks?" });
     assert.ok(slot.getByText("This deletes their output logs. Running tasks will stay."));
     fireEvent.click(slot.getByRole("button", { name: "Clear tasks" }));
