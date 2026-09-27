@@ -49,14 +49,18 @@ test("Clear finished confirms, clears finished tasks and keeps running tasks", a
   });
   try {
     await slot.findByText("Completed task");
-    fireEvent.click(slot.getByRole("button", { name: "Clear finished" }));
+    const actions = slot.getByRole("button", { name: "Task actions" });
+    assert.equal(actions.parentElement?.classList.contains("border-b"), false);
+    fireEvent.keyDown(actions, { key: "Enter" });
+    fireEvent.click(await slot.findByRole("menuitem", { name: "Clear finished" }));
     await slot.findByRole("heading", { name: "Clear 2 finished tasks?" });
     assert.ok(slot.getByText("This deletes their output logs. Running tasks will stay."));
     fireEvent.click(slot.getByRole("button", { name: "Clear tasks" }));
     await waitFor(() => assert.deepEqual(cleared, [1, 2]));
     await waitFor(() => assert.equal(slot.queryByText("Completed task"), null));
     assert.ok(slot.getByText("Running task"));
-    assert.equal(slot.getByRole("button", { name: "Clear finished" }).hasAttribute("disabled"), true);
+    fireEvent.keyDown(actions, { key: "Enter" });
+    assert.equal((await slot.findByRole("menuitem", { name: "Clear finished" })).hasAttribute("data-disabled"), true);
   } finally { slot.lifecycle.unmount(); }
 });
 
