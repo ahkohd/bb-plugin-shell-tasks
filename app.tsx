@@ -135,19 +135,6 @@ function statusIcon(status: TaskStatus) {
   }
 }
 
-function statusClass(status: TaskStatus): string {
-  switch (status) {
-    case "running":
-      return "text-subtle-foreground";
-    case "success":
-      return "text-subtle-foreground";
-    case "error":
-      return "text-subtle-foreground";
-    case "stopped":
-      return "text-destructive-text";
-  }
-}
-
 function taskName(task: Pick<TaskDetailSummary, "task_id" | "title">): string {
   return task.title || `Task #${task.task_id}`;
 }
@@ -376,7 +363,7 @@ function TasksPanel({ threadId, params }: PluginThreadPanelProps) {
                           <span className="text-subtle-foreground">
                             #{task.task_id} ·{" "}
                           </span>
-                          <span className={statusClass(task.status)}>
+                          <span className="text-subtle-foreground">
                             {statusText(task)}
                           </span>
                         </span>
@@ -484,7 +471,7 @@ function TaskDirective({ attributes, message }: PluginMessageDirectiveProps) {
             </span>
           ) : null}
         </span>
-        <span className={cn("shrink-0 text-xs", statusClass(data.task.status))}>
+        <span className="shrink-0 text-xs text-subtle-foreground">
           {statusText(data.task)}
         </span>
       </button>
