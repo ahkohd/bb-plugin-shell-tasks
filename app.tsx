@@ -31,6 +31,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Icon } from "@/components/ui/icon";
+import { usePortalScopeProps } from "@/lib/portal-scope";
 import { cn } from "@/lib/utils";
 
 type TaskChanged = {
@@ -220,6 +221,7 @@ function TasksPanel({ threadId, params }: PluginThreadPanelProps) {
   const [pending, setPending] = useState<number | null>(null);
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
   const [clearingFinished, setClearingFinished] = useState(false);
+  const portalScopeProps = usePortalScopeProps();
   const ordered = useMemo(() => [...(tasks ?? [])].reverse(), [tasks]);
   const finished = (tasks ?? []).filter((task) => task.status !== "running");
   const hasRunningTask = tasks?.some((task) => task.status === "running") ?? false;
@@ -279,11 +281,12 @@ function TasksPanel({ threadId, params }: PluginThreadPanelProps) {
               className="size-8 text-muted-foreground"
               aria-label="Task actions"
             >
-              <Icon name="MoreHorizontal" className="rotate-90" />
+              <Icon name="MoreHorizontal" />
             </Button>
           </DropdownMenu.Trigger>
           <DropdownMenu.Portal>
             <DropdownMenu.Content
+              {...portalScopeProps}
               align="end"
               sideOffset={4}
               className="z-50 min-w-40 rounded-md border border-border bg-background p-1 text-foreground shadow-sm"
