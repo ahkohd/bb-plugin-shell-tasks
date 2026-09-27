@@ -330,6 +330,7 @@ function TasksPanel({ threadId, params }: PluginThreadPanelProps) {
           </DialogContent>
         </Dialog>
       </div>
+      <div aria-hidden="true" className="mx-3 shrink-0 border-t border-border" />
       <div className="min-h-0 flex-1 overflow-y-auto p-3">
         {error || detailError ? (
           <p role="alert" className="mb-3 text-sm text-destructive">
