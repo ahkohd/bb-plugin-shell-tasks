@@ -20,6 +20,16 @@ import type {
   rpcContract,
 } from "./server";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Icon } from "@/components/ui/icon";
 import { cn } from "@/lib/utils";
 
@@ -221,7 +231,10 @@ function TasksPanel({ threadId, params }: PluginThreadPanelProps) {
   );
   const { data: detail, error: detailError } = useTaskDetail(threadId, selectedId, tasks);
   const [pending, setPending] = useState<number | null>(null);
+  const [clearDialogOpen, setClearDialogOpen] = useState(false);
+  const [clearingFinished, setClearingFinished] = useState(false);
   const ordered = useMemo(() => [...(tasks ?? [])].reverse(), [tasks]);
+  const finished = (tasks ?? []).filter((task) => task.status !== "running");
   const hasRunningTask = tasks?.some((task) => task.status === "running") ?? false;
   const now = useTaskClock(hasRunningTask);
 
@@ -248,9 +261,67 @@ function TasksPanel({ threadId, params }: PluginThreadPanelProps) {
       setPending(null);
     }
   };
+  const clearFinished = async () => {
+    const ids = finished.map((task) => task.task_id);
+    if (ids.length === 0) return;
+    const cleared: number[] = [];
+    setClearingFinished(true);
+    try {
+      for (const id of ids) {
+        await rpc.call("task_clear", { threadId, id });
+        cleared.push(id);
+      }
+    } catch (cause) {
+      report(cause);
+    } finally {
+      setSelectedId((current) => current !== null && cleared.includes(current) ? null : current);
+      refetch();
+      setClearingFinished(false);
+      setClearDialogOpen(false);
+    }
+  };
 
   return (
     <div className="flex h-full min-h-0 flex-col">
+      <div className="flex shrink-0 justify-end border-b border-border px-3 py-2">
+        <Dialog
+          open={clearDialogOpen}
+          onOpenChange={(open) => { if (!clearingFinished) setClearDialogOpen(open); }}
+        >
+          <DialogTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={finished.length === 0 || clearingFinished}
+            >
+              <Icon name="Trash2" />
+              Clear finished
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle>
+                Clear {finished.length} finished {finished.length === 1 ? "task" : "tasks"}?
+              </DialogTitle>
+              <DialogDescription>
+                This deletes their output logs. Running tasks will stay.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline" disabled={clearingFinished}>Cancel</Button>
+              </DialogClose>
+              <Button
+                variant="destructive"
+                disabled={clearingFinished}
+                onClick={() => void clearFinished()}
+              >
+                {clearingFinished ? "Clearing…" : "Clear tasks"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
       <div className="min-h-0 flex-1 overflow-y-auto p-3">
         {error || detailError ? (
           <p role="alert" className="mb-3 text-sm text-destructive">
@@ -326,7 +397,7 @@ function TasksPanel({ threadId, params }: PluginThreadPanelProps) {
                         size="icon"
                         className="size-8 text-muted-foreground"
                         aria-label={`Clear ${taskName(task)}`}
-                        disabled={pending === task.task_id}
+                        disabled={pending === task.task_id || clearingFinished}
                         onClick={() => void clear(task.task_id)}
                       >
                         <Icon name="Trash2" className="size-4" />

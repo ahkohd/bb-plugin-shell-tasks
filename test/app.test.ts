@@ -4,9 +4,23 @@ import { createRequire } from "node:module";
 
 const { JSDOM } = createRequire(import.meta.url)("jsdom");
 const dom = new JSDOM("<!doctype html><html><body></body></html>", { url: "http://localhost" });
-Object.assign(globalThis, { window: dom.window, document: dom.window.document, HTMLElement: dom.window.HTMLElement });
+Object.assign(globalThis, {
+  window: dom.window,
+  document: dom.window.document,
+  Event: dom.window.Event,
+  CustomEvent: dom.window.CustomEvent,
+  Node: dom.window.Node,
+  NodeFilter: dom.window.NodeFilter,
+  Element: dom.window.Element,
+  HTMLElement: dom.window.HTMLElement,
+  HTMLInputElement: dom.window.HTMLInputElement,
+  HTMLButtonElement: dom.window.HTMLButtonElement,
+  SVGElement: dom.window.SVGElement,
+  MutationObserver: dom.window.MutationObserver,
+  getComputedStyle: dom.window.getComputedStyle.bind(dom.window),
+});
 Object.defineProperty(globalThis, "navigator", { value: dom.window.navigator, configurable: true });
-const { act, fireEvent } = await import("@testing-library/react");
+const { act, fireEvent, waitFor } = await import("@testing-library/react");
 const { loadPluginApp, renderSlot } = await import("@get-bb/plugin-sdk/testing/app");
 const app = await loadPluginApp(() => import("../app.tsx"));
 const task = (id: number, status = "running") => ({ task_id: id, status, pid: 123, command: "true", started_at: new Date().toISOString(), ended_at: null, exit_code: null, signal: null, log_path: "/tmp/log" });
@@ -14,6 +28,36 @@ const detail = (id: number, output: string, status = "running") => ({ task: task
 
 test("panel uses the Apple Reminder icon", () => {
   assert.equal(app.threadPanelActions[0].icon, "shell-tasks/apple-reminder");
+});
+
+test("Clear finished confirms, clears finished tasks and keeps running tasks", async () => {
+  let tasks: any[] = [
+    { ...task(1, "success"), title: "Completed task" },
+    { ...task(2, "error"), title: "Failed task", exit_code: 1 },
+    { ...task(3), title: "Running task" },
+  ];
+  const cleared: number[] = [];
+  const slot = renderSlot(app.threadPanelActions[0], { threadId: "thread-test" } as any, {
+    rpc: {
+      tasks_list: async () => ({ tasks }),
+      task_clear: async ({ id }: any) => {
+        cleared.push(id);
+        tasks = tasks.filter((item) => item.task_id !== id);
+        return { task_id: id, status: "cleared", previous_status: "success" };
+      },
+    },
+  });
+  try {
+    await slot.findByText("Completed task");
+    fireEvent.click(slot.getByRole("button", { name: "Clear finished" }));
+    await slot.findByRole("heading", { name: "Clear 2 finished tasks?" });
+    assert.ok(slot.getByText("This deletes their output logs. Running tasks will stay."));
+    fireEvent.click(slot.getByRole("button", { name: "Clear tasks" }));
+    await waitFor(() => assert.deepEqual(cleared, [1, 2]));
+    await waitFor(() => assert.equal(slot.queryByText("Completed task"), null));
+    assert.ok(slot.getByText("Running task"));
+    assert.equal(slot.getByRole("button", { name: "Clear finished" }).hasAttribute("disabled"), true);
+  } finally { slot.lifecycle.unmount(); }
 });
 
 test("task duration ticks while running and stays fixed when completed", async () => {
