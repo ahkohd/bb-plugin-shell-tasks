@@ -53,8 +53,10 @@ test("Clear finished confirms, clears finished tasks and keeps running tasks", a
     const count = slot.getByText("3");
     assert.ok(count.classList.contains("text-foreground"));
     assert.ok(count.classList.contains("group-hover:opacity-0"));
+    assert.equal(count.classList.contains("transition-opacity"), false);
     const actions = slot.getByRole("button", { name: "Task actions" });
     assert.ok(actions.classList.contains("group-hover:opacity-100"));
+    assert.equal(actions.classList.contains("transition-opacity"), false);
     const toolbar = actions.parentElement?.parentElement;
     assert.equal(toolbar?.classList.contains("border-b"), false);
     const divider = toolbar?.nextElementSibling;

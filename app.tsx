@@ -280,7 +280,7 @@ function TasksPanel({ threadId, params }: PluginThreadPanelProps) {
           <div className="relative size-8">
             <span
               className={cn(
-                "absolute inset-0 flex items-center justify-center text-sm text-foreground transition-opacity group-hover:opacity-0 group-focus-within:opacity-0 max-md:pointer-coarse:opacity-0",
+                "absolute inset-0 flex items-center justify-center text-sm text-foreground group-hover:opacity-0 group-focus-within:opacity-0 max-md:pointer-coarse:opacity-0",
                 actionsOpen && "opacity-0",
               )}
             >
@@ -292,7 +292,7 @@ function TasksPanel({ threadId, params }: PluginThreadPanelProps) {
                   variant="ghost"
                   size="icon"
                   className={cn(
-                    "absolute inset-0 size-8 text-foreground opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100 max-md:pointer-coarse:opacity-100",
+                    "absolute inset-0 size-8 text-foreground opacity-0 group-hover:opacity-100 focus:opacity-100 max-md:pointer-coarse:opacity-100",
                     actionsOpen && "opacity-100",
                   )}
                   aria-label="Task actions"
