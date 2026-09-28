@@ -51,6 +51,9 @@ test("Clear finished confirms, clears finished tasks and keeps running tasks", a
     await slot.findByText("Completed task");
     const actions = slot.getByRole("button", { name: "Task actions" });
     assert.equal(actions.parentElement?.classList.contains("border-b"), false);
+    const divider = actions.parentElement?.nextElementSibling;
+    assert.ok(divider?.classList.contains("border-t"));
+    assert.ok(divider?.classList.contains("mx-3"));
     assert.equal(actions.querySelector("[data-icon='MoreHorizontal']")?.classList.contains("rotate-90"), false);
     fireEvent.keyDown(actions, { key: "Enter" });
     const clearFinished = await slot.findByRole("menuitem", { name: "Clear finished" });
