@@ -219,16 +219,14 @@ function TasksPanel({ threadId, params }: PluginThreadPanelProps) {
   );
   const { data: detail, error: detailError } = useTaskDetail(threadId, selectedId, tasks);
   const [pending, setPending] = useState<number | null>(null);
+  const [actionsOpen, setActionsOpen] = useState(false);
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
   const [clearingFinished, setClearingFinished] = useState(false);
   const portalScopeProps = usePortalScopeProps();
   const ordered = useMemo(() => [...(tasks ?? [])].reverse(), [tasks]);
   const finished = (tasks ?? []).filter((task) => task.status !== "running");
-  const runningCount = (tasks?.length ?? 0) - finished.length;
-  const taskCounts = tasks === null ? null : [
-    runningCount > 0 ? `${runningCount} running` : null,
-    finished.length > 0 ? `${finished.length} finished` : null,
-  ].filter(Boolean).join(" ") || "No tasks";
+  const taskCount = tasks?.length ?? 0;
+  const runningCount = taskCount - finished.length;
   const now = useTaskClock(runningCount > 0);
 
   const stop = async (id: number) => {
@@ -276,37 +274,54 @@ function TasksPanel({ threadId, params }: PluginThreadPanelProps) {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="flex shrink-0 items-center justify-between px-3 py-2">
-        <p className="text-xs text-subtle-foreground">{taskCounts}</p>
-        <DropdownMenu.Root>
-          <DropdownMenu.Trigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-8 text-muted-foreground"
-              aria-label="Task actions"
+      <div className="group flex shrink-0 items-center justify-between px-3 py-2">
+        <p className="text-sm font-medium text-foreground">Tasks</p>
+        {taskCount > 0 ? (
+          <div className="relative size-8">
+            <span
+              className={cn(
+                "absolute inset-0 flex items-center justify-center text-sm text-foreground transition-opacity group-hover:opacity-0 group-focus-within:opacity-0 max-md:pointer-coarse:opacity-0",
+                actionsOpen && "opacity-0",
+              )}
             >
-              <Icon name="MoreHorizontal" />
-            </Button>
-          </DropdownMenu.Trigger>
-          <DropdownMenu.Portal>
-            <DropdownMenu.Content
-              {...portalScopeProps}
-              align="end"
-              sideOffset={4}
-              className="z-50 min-w-40 rounded-md border border-border bg-background p-1 text-foreground shadow-sm"
-            >
-              <DropdownMenu.Item
-                disabled={finished.length === 0 || clearingFinished}
-                onSelect={() => setClearDialogOpen(true)}
-                className="flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-xs outline-none hover:bg-state-hover data-[highlighted]:bg-state-hover data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
-              >
-                <Icon name="Trash2" className="size-[16px]" />
-                Clear finished
-              </DropdownMenu.Item>
-            </DropdownMenu.Content>
-          </DropdownMenu.Portal>
-        </DropdownMenu.Root>
+              {taskCount}
+            </span>
+            <DropdownMenu.Root open={actionsOpen} onOpenChange={setActionsOpen}>
+              <DropdownMenu.Trigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn(
+                    "absolute inset-0 size-8 text-foreground opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100 max-md:pointer-coarse:opacity-100",
+                    actionsOpen && "opacity-100",
+                  )}
+                  aria-label="Task actions"
+                >
+                  <Icon name="MoreHorizontal" />
+                </Button>
+              </DropdownMenu.Trigger>
+              <DropdownMenu.Portal>
+                <DropdownMenu.Content
+                  {...portalScopeProps}
+                  align="end"
+                  sideOffset={4}
+                  className="z-50 min-w-40 rounded-md border border-border bg-background p-1 text-foreground shadow-sm"
+                >
+                  <DropdownMenu.Item
+                    disabled={finished.length === 0 || clearingFinished}
+                    onSelect={() => setClearDialogOpen(true)}
+                    className="flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-xs outline-none hover:bg-state-hover data-[highlighted]:bg-state-hover data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+                  >
+                    <Icon name="Trash2" className="size-[16px]" />
+                    Clear finished
+                  </DropdownMenu.Item>
+                </DropdownMenu.Content>
+              </DropdownMenu.Portal>
+            </DropdownMenu.Root>
+          </div>
+        ) : (
+          <div aria-hidden="true" className="size-8" />
+        )}
         <Dialog
           open={clearDialogOpen}
           onOpenChange={(open) => { if (!clearingFinished) setClearDialogOpen(open); }}

@@ -49,15 +49,22 @@ test("Clear finished confirms, clears finished tasks and keeps running tasks", a
   });
   try {
     await slot.findByText("Completed task");
-    assert.ok(slot.getByText("1 running 2 finished"));
+    assert.ok(slot.getByText("Tasks").classList.contains("text-foreground"));
+    const count = slot.getByText("3");
+    assert.ok(count.classList.contains("text-foreground"));
+    assert.ok(count.classList.contains("group-hover:opacity-0"));
     const actions = slot.getByRole("button", { name: "Task actions" });
-    assert.equal(actions.parentElement?.classList.contains("border-b"), false);
-    const divider = actions.parentElement?.nextElementSibling;
+    assert.ok(actions.classList.contains("group-hover:opacity-100"));
+    const toolbar = actions.parentElement?.parentElement;
+    assert.equal(toolbar?.classList.contains("border-b"), false);
+    const divider = toolbar?.nextElementSibling;
     assert.ok(divider?.classList.contains("border-t"));
     assert.ok(divider?.classList.contains("mx-3"));
     assert.equal(actions.querySelector("[data-icon='MoreHorizontal']")?.classList.contains("rotate-90"), false);
     fireEvent.keyDown(actions, { key: "Enter" });
     const clearFinished = await slot.findByRole("menuitem", { name: "Clear finished" });
+    assert.ok(count.classList.contains("opacity-0"));
+    assert.ok(actions.classList.contains("opacity-100"));
     assert.ok(clearFinished.classList.contains("text-xs"));
     assert.ok(clearFinished.classList.contains("hover:bg-state-hover"));
     assert.ok(clearFinished.closest("[data-bb-plugin-root]"));
@@ -69,19 +76,21 @@ test("Clear finished confirms, clears finished tasks and keeps running tasks", a
     await waitFor(() => assert.deepEqual(cleared, [1, 2]));
     await waitFor(() => assert.equal(slot.queryByText("Completed task"), null));
     assert.ok(slot.getByText("Running task"));
-    await slot.findByText("1 running");
+    await slot.findByText("1");
     fireEvent.keyDown(actions, { key: "Enter" });
     assert.equal((await slot.findByRole("menuitem", { name: "Clear finished" })).hasAttribute("data-disabled"), true);
   } finally { slot.lifecycle.unmount(); }
 });
 
-test("task summary omits zero counts", async () => {
+test("empty task toolbar hides the count and actions", async () => {
   const slot = renderSlot(app.threadPanelActions[0], { threadId: "thread-test" } as any, {
-    rpc: { tasks_list: () => ({ tasks: [task(1, "success")] }) },
+    rpc: { tasks_list: () => ({ tasks: [] }) },
   });
   try {
-    await slot.findByText("1 finished");
-    assert.equal(slot.queryByText(/0 running/), null);
+    await slot.findByText("No tasks in this thread.");
+    assert.ok(slot.getByText("Tasks"));
+    assert.equal(slot.queryByText("0"), null);
+    assert.equal(slot.queryByRole("button", { name: "Task actions" }), null);
   } finally { slot.lifecycle.unmount(); }
 });
 
