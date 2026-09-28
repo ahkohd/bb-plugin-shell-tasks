@@ -274,7 +274,7 @@ function TasksPanel({ threadId, params }: PluginThreadPanelProps) {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="group flex shrink-0 items-center justify-between px-3 pt-2 pb-px">
+      <div className="group flex shrink-0 items-center justify-between px-3 pt-2 pb-0.5">
         <p className="text-sm font-medium text-foreground">Tasks</p>
         {taskCount > 0 ? (
           <div className="relative size-8">
