@@ -79,7 +79,7 @@ test("Clear finished confirms, clears finished tasks and keeps running tasks", a
     assert.ok(clearFinished.classList.contains("text-xs"));
     assert.ok(clearFinished.classList.contains("hover:bg-state-hover"));
     assert.ok(clearFinished.closest("[data-bb-plugin-root]"));
-    assert.ok(clearFinished.querySelector("[data-icon-root]")?.classList.contains("size-[16px]"));
+    assert.ok(clearFinished.querySelector("[data-icon-root]")?.classList.contains("size-[14px]"));
     fireEvent.click(clearFinished);
     await slot.findByRole("heading", { name: "Clear 2 finished tasks?" });
     assert.ok(slot.getByText("This deletes their output logs. Running tasks will stay."));
