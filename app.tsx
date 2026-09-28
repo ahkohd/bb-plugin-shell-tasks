@@ -228,7 +228,7 @@ function TasksPanel({ threadId, params }: PluginThreadPanelProps) {
   const taskCounts = tasks === null ? null : [
     runningCount > 0 ? `${runningCount} running` : null,
     finished.length > 0 ? `${finished.length} finished` : null,
-  ].filter(Boolean).join(" · ") || "No tasks";
+  ].filter(Boolean).join(" ") || "No tasks";
   const now = useTaskClock(runningCount > 0);
 
   const stop = async (id: number) => {
