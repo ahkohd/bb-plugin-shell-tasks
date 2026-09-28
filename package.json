@@ -1,6 +1,6 @@
 {
   "name": "bb-plugin-shell-tasks",
-  "version": "0.1.36",
+  "version": "0.1.37",
   "description": "Lets your BB agents run long-lived shell commands without blocking a turn.",
   "license": "MIT",
   "repository": {
