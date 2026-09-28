@@ -49,7 +49,7 @@ test("Clear finished confirms, clears finished tasks and keeps running tasks", a
   });
   try {
     await slot.findByText("Completed task");
-    assert.ok(slot.getByText("1 running · 2 finished"));
+    assert.ok(slot.getByText("1 running 2 finished"));
     const actions = slot.getByRole("button", { name: "Task actions" });
     assert.equal(actions.parentElement?.classList.contains("border-b"), false);
     const divider = actions.parentElement?.nextElementSibling;
