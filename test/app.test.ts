@@ -58,6 +58,8 @@ test("Clear finished confirms, clears finished tasks and keeps running tasks", a
     assert.ok(actions.classList.contains("group-hover:opacity-100"));
     assert.equal(actions.classList.contains("transition-opacity"), false);
     const toolbar = actions.parentElement?.parentElement;
+    assert.ok(toolbar?.classList.contains("gap-1"));
+    assert.equal(toolbar?.classList.contains("justify-between"), false);
     assert.equal(toolbar?.classList.contains("border-b"), false);
     const divider = toolbar?.nextElementSibling;
     assert.ok(divider?.classList.contains("border-t"));
