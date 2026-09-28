@@ -312,7 +312,7 @@ function TasksPanel({ threadId, params }: PluginThreadPanelProps) {
                     onSelect={() => setClearDialogOpen(true)}
                     className="flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-xs outline-none hover:bg-state-hover data-[highlighted]:bg-state-hover data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
                   >
-                    <Icon name="Trash2" className="size-[14px]" />
+                    <Icon name="Trash2" className="size-[16px]" />
                     Clear finished
                   </DropdownMenu.Item>
                 </DropdownMenu.Content>
