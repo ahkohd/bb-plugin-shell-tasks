@@ -224,8 +224,12 @@ function TasksPanel({ threadId, params }: PluginThreadPanelProps) {
   const portalScopeProps = usePortalScopeProps();
   const ordered = useMemo(() => [...(tasks ?? [])].reverse(), [tasks]);
   const finished = (tasks ?? []).filter((task) => task.status !== "running");
-  const hasRunningTask = tasks?.some((task) => task.status === "running") ?? false;
-  const now = useTaskClock(hasRunningTask);
+  const runningCount = (tasks?.length ?? 0) - finished.length;
+  const taskCounts = tasks === null ? null : [
+    runningCount > 0 ? `${runningCount} running` : null,
+    finished.length > 0 ? `${finished.length} finished` : null,
+  ].filter(Boolean).join(" · ") || "No tasks";
+  const now = useTaskClock(runningCount > 0);
 
   const stop = async (id: number) => {
     setPending(id);
@@ -272,7 +276,8 @@ function TasksPanel({ threadId, params }: PluginThreadPanelProps) {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="flex shrink-0 justify-end px-3 py-2">
+      <div className="flex shrink-0 items-center justify-between px-3 py-2">
+        <p className="text-xs text-subtle-foreground">{taskCounts}</p>
         <DropdownMenu.Root>
           <DropdownMenu.Trigger asChild>
             <Button
