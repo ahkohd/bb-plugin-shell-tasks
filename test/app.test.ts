@@ -49,6 +49,7 @@ test("Clear finished confirms, clears finished tasks and keeps running tasks", a
   });
   try {
     await slot.findByText("Completed task");
+    assert.ok(slot.getByText("1 running · 2 finished"));
     const actions = slot.getByRole("button", { name: "Task actions" });
     assert.equal(actions.parentElement?.classList.contains("border-b"), false);
     const divider = actions.parentElement?.nextElementSibling;
@@ -68,8 +69,19 @@ test("Clear finished confirms, clears finished tasks and keeps running tasks", a
     await waitFor(() => assert.deepEqual(cleared, [1, 2]));
     await waitFor(() => assert.equal(slot.queryByText("Completed task"), null));
     assert.ok(slot.getByText("Running task"));
+    await slot.findByText("1 running");
     fireEvent.keyDown(actions, { key: "Enter" });
     assert.equal((await slot.findByRole("menuitem", { name: "Clear finished" })).hasAttribute("data-disabled"), true);
+  } finally { slot.lifecycle.unmount(); }
+});
+
+test("task summary omits zero counts", async () => {
+  const slot = renderSlot(app.threadPanelActions[0], { threadId: "thread-test" } as any, {
+    rpc: { tasks_list: () => ({ tasks: [task(1, "success")] }) },
+  });
+  try {
+    await slot.findByText("1 finished");
+    assert.equal(slot.queryByText(/0 running/), null);
   } finally { slot.lifecycle.unmount(); }
 });
 
