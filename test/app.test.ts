@@ -64,6 +64,7 @@ test("Clear finished confirms, clears finished tasks and keeps running tasks", a
     const toolbar = actions.parentElement?.parentElement;
     assert.ok(toolbar?.classList.contains("justify-between"));
     assert.ok(toolbar?.classList.contains("pt-2"));
+    assert.ok(toolbar?.classList.contains("pb-px"));
     assert.equal(toolbar?.classList.contains("gap-1"), false);
     assert.equal(toolbar?.classList.contains("py-2"), false);
     assert.equal(toolbar?.classList.contains("border-b"), false);
